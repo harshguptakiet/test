@@ -1,0 +1,335 @@
+/* DNA Visualization Animations */
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.8), 0 0 30px rgba(59, 130, 246, 0.6);
+  }
+}
+
+@keyframes rotate-dna {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(360deg);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes particle-float {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100px) rotate(180deg);
+    opacity: 0;
+  }
+}
+
+@keyframes helix-spin {
+  from {
+    transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
+  }
+  to {
+    transform: perspective(1000px) rotateX(360deg) rotateY(360deg);
+  }
+}
+
+@keyframes base-glow {
+  0%, 100% {
+    filter: brightness(1) saturate(1);
+    transform: scale(1);
+  }
+  50% {
+    filter: brightness(1.2) saturate(1.5);
+    transform: scale(1.05);
+  }
+}
+
+@keyframes connection-pulse {
+  0%, 100% {
+    stroke-width: 2;
+    opacity: 0.6;
+  }
+  50% {
+    stroke-width: 4;
+    opacity: 1;
+  }
+}
+
+@keyframes dna-flow {
+  0% {
+    transform: translateY(100vh);
+  }
+  100% {
+    transform: translateY(-100px);
+  }
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Utility classes */
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease-out forwards;
+}
+
+.animate-fade-in-up.delay-300 {
+  animation-delay: 0.3s;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-rotate-dna {
+  animation: rotate-dna 10s linear infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+.animate-particle-float {
+  animation: particle-float 4s ease-out infinite;
+}
+
+.animate-helix-spin {
+  animation: helix-spin 20s linear infinite;
+}
+
+.animate-base-glow {
+  animation: base-glow 2s ease-in-out infinite;
+}
+
+.animate-dna-flow {
+  animation: dna-flow 15s linear infinite;
+}
+
+.animate-sparkle {
+  animation: sparkle 1.5s ease-in-out infinite;
+}
+
+/* DNA specific styles */
+.dna-container {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+.dna-strand {
+  transform-style: preserve-3d;
+  animation: rotate-dna 8s linear infinite;
+}
+
+.dna-base {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.dna-base:hover {
+  transform: scale(1.1);
+  filter: brightness(1.3) saturate(1.2);
+}
+
+.dna-connection {
+  transition: stroke-width 0.3s ease, opacity 0.3s ease;
+}
+
+.dna-connection:hover {
+  stroke-width: 6 !important;
+  opacity: 1 !important;
+}
+
+/* Particle system */
+.dna-particle {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, transparent 70%);
+}
+
+/* Glow effects */
+.dna-glow {
+  filter: drop-shadow(0 0 10px currentColor);
+}
+
+.dna-glow-intense {
+  filter: drop-shadow(0 0 20px currentColor) drop-shadow(0 0 40px currentColor);
+}
+
+/* Background effects */
+.dna-bg-gradient {
+  background: linear-gradient(45deg, #0f172a, #1e293b, #0f172a);
+  background-size: 400% 400%;
+  animation: shimmer 8s ease infinite;
+}
+
+.dna-bg-particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .animate-fade-in-up {
+    animation-duration: 0.6s;
+  }
+  
+  .animate-rotate-dna {
+    animation-duration: 8s;
+  }
+  
+  .dna-base:hover {
+    transform: scale(1.05);
+  }
+}
+
+/* Dark theme enhancements */
+@media (prefers-color-scheme: dark) {
+  .dna-glow {
+    filter: drop-shadow(0 0 15px currentColor) brightness(1.1);
+  }
+  
+  .dna-bg-gradient {
+    background: linear-gradient(45deg, #000000, #1a1a2e, #16213e, #000000);
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .dna-base {
+    border: 2px solid currentColor;
+  }
+  
+  .dna-connection {
+    stroke-width: 4 !important;
+  }
+}
+
+/* Custom Slider Styles */
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+  border: 2px solid #ffffff;
+  transition: all 0.2s ease-in-out;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  background: #2563eb;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5);
+  transform: scale(1.1);
+}
+
+.slider::-webkit-slider-track {
+  height: 8px;
+  border-radius: 4px;
+  background: #374151;
+}
+
+.slider::-moz-range-thumb {
+  border: 2px solid #ffffff;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+  transition: all 0.2s ease-in-out;
+}
+
+.slider::-moz-range-thumb:hover {
+  background: #2563eb;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5);
+  transform: scale(1.1);
+}
+
+.slider::-moz-range-track {
+  height: 8px;
+  border-radius: 4px;
+  background: #374151;
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .animate-rotate-dna,
+  .animate-helix-spin,
+  .animate-particle-float,
+  .animate-dna-flow {
+    animation: none;
+  }
+  
+  .animate-fade-in-up {
+    animation-duration: 0.3s;
+  }
+  
+  .dna-base {
+    transition: none;
+  }
+  
+  .slider::-webkit-slider-thumb,
+  .slider::-moz-range-thumb {
+    transition: none;
+  }
+}

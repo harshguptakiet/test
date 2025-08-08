@@ -1,0 +1,87 @@
+# Railway Dockerfile for CuraGenie Backend
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    sqlite3 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first for better caching
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY . .
+
+# Create data directory for persistent volume
+RUN mkdir -p /app/data /app/data/uploads
+
+# Database initialization script
+RUN python -c "
+import sqlite3
+import os
+
+db_path = '/app/data/curagenie_real.db'
+if not os.path.exists(db_path):
+    print('Initializing database...')
+    conn = sqlite3.connect(db_path)
+    
+    # Create genomic_variants table
+    conn.execute('''CREATE TABLE IF NOT EXISTS genomic_variants (
+        id INTEGER PRIMARY KEY,
+        chromosome TEXT,
+        position INTEGER,
+        ref_allele TEXT,
+        alt_allele TEXT,
+        quality REAL,
+        info TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )''')
+    
+    # Create timeline_events table
+    conn.execute('''CREATE TABLE IF NOT EXISTS timeline_events (
+        id INTEGER PRIMARY KEY,
+        event_type TEXT,
+        description TEXT,
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )''')
+    
+    # Create prs_scores table
+    conn.execute('''CREATE TABLE IF NOT EXISTS prs_scores (
+        id INTEGER PRIMARY KEY,
+        disease TEXT,
+        score REAL,
+        risk_category TEXT,
+        calculated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )''')
+    
+    # Add some sample data for testing
+    conn.execute('''INSERT INTO timeline_events (event_type, description) 
+                   VALUES ('system', 'Database initialized successfully')''')
+    
+    conn.commit()
+    conn.close()
+    print('Database initialized successfully!')
+else:
+    print('Database already exists, skipping initialization.')
+"
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+
+# Expose port (Railway will provide $PORT)
+EXPOSE $PORT
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:$PORT/health || exit 1
+
+# Start command for Railway
+CMD ["sh", "-c", "gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker --host 0.0.0.0 --port $PORT --access-logfile - --error-logfile -"]
