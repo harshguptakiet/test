@@ -1,54 +1,39 @@
-FROM python:3.11-slim as builder
+# Railway Dockerfile for CuraGenie Backend
+FROM python:3.11-slim
 
-# Install system dependencies for building
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
-    g++ \
-    build-essential \
+    sqlite3 \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
-WORKDIR /app
-
-# Copy requirements and install dependencies
+# Copy requirements first for better caching
 COPY requirements.txt .
+
+# Install Python dependencies
 RUN pip install --no-cache-dir --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Production stage
-FROM python:3.11-slim as production
-
-# Create non-root user for security
-RUN groupadd -r curagenie && useradd -r -g curagenie curagenie
-
-# Set working directory
-WORKDIR /app
-
-# Copy Python packages from builder
-COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
-COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy application code
 COPY . .
 
-# Create necessary directories and set permissions
-RUN mkdir -p /app/uploads /app/logs && \
-    chown -R curagenie:curagenie /app
+# Create data directory for Railway persistent volume
+RUN mkdir -p /app/data /app/data/uploads
 
-# Switch to non-root user
-USER curagenie
-
-# Expose port
-EXPOSE 8000
-
-# Environment variables
+# Set environment variables
 ENV PYTHONPATH=/app
-ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:8000/health', timeout=5)" || exit 1
+# Expose port (Railway will provide $PORT)
+EXPOSE $PORT
 
-# Run the application with Gunicorn for production
-CMD ["gunicorn", "main:app", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000", "--access-logfile", "-", "--error-logfile", "-"]
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:$PORT/health || exit 1
+
+# Start command for Railway (will use $PORT environment variable)
+CMD ["sh", "-c", "gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker --host 0.0.0.0 --port $PORT --access-logfile - --error-logfile -"]
