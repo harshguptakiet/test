@@ -1,39 +1,19 @@
-# Railway Dockerfile for CuraGenie Backend
 FROM python:3.11-slim
 
-# Set working directory
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    gcc \
-    sqlite3 \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy backend requirements first for better caching
+# Copy requirements and install dependencies
 COPY backend/requirements.txt .
-
-# Install Python dependencies
-RUN pip install --no-cache-dir --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy backend application code
+# Copy application code
 COPY backend/ .
 
-# Create data directory for Railway persistent volume
-RUN mkdir -p /app/data /app/data/uploads
+# Create directories
+RUN mkdir -p /app/data /app/uploads
 
-# Set environment variables
-ENV PYTHONPATH=/app
+# Environment variables
 ENV PYTHONUNBUFFERED=1
 
-# Expose port (Railway will provide $PORT)
-EXPOSE $PORT
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:$PORT/health || exit 1
-
-# Start command for Railway (will use $PORT environment variable)
-CMD ["sh", "-c", "gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker --host 0.0.0.0 --port $PORT --access-logfile - --error-logfile -"]
+# Start command
+CMD sh -c "gunicorn main:app -w 2 -k uvicorn.workers.UvicornWorker --host 0.0.0.0 --port $PORT"
