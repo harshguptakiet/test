@@ -14,6 +14,7 @@ from api.direct_prs import router as direct_prs_router
 from api.timeline import router as timeline_router
 from api.reports import router as reports_router
 from api.mri_analysis import router as mri_router
+from api.supabase_upload import router as supabase_upload_router
 # Optional routers that require heavy deps
 import os
 _ENHANCED_MRI_ENABLED = os.getenv("ENABLE_ENHANCED_MRI", "false").lower() in ("1", "true", "yes")
@@ -72,6 +73,7 @@ app.include_router(direct_prs_router)
 app.include_router(timeline_router)
 app.include_router(reports_router)
 app.include_router(mri_router)
+app.include_router(supabase_upload_router)
 if _HAS_ENHANCED_MRI and enhanced_mri_router is not None:
     app.include_router(enhanced_mri_router)
 app.include_router(profile_router)
