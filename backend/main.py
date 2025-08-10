@@ -45,10 +45,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Database setup
-DATABASE_PATH = "curagenie_real.db"
-UPLOADS_DIR = Path("uploads")
-UPLOADS_DIR.mkdir(exist_ok=True)
+# Database setup (configurable via environment variables)
+DATABASE_PATH = os.getenv("DATABASE_PATH", "/app/data/curagenie_real.db")
+UPLOADS_DIR = Path(os.getenv("UPLOADS_DIR", "uploads"))
+# Ensure parent directory for DB exists if a path is provided
+_db_parent = Path(DATABASE_PATH).parent
+if str(_db_parent) and str(_db_parent) != ".":
+    _db_parent.mkdir(parents=True, exist_ok=True)
+UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
 def init_database():
     """Initialize SQLite database with all required tables"""
