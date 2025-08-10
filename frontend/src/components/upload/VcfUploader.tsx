@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { uploadVcf } from "../../lib/uploadVcf";
+import { uploadVcf } from "@/lib/uploadVcf";
 
 export default function VcfUploader() {
   const [status, setStatus] = useState<string>("");

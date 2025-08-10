@@ -1,4 +1,4 @@
-import VcfUploader from "@/src/components/upload/VcfUploader";
+import VcfUploader from "@/components/upload/VcfUploader";
 
 export default function DebugUploadPage() {
   return (
